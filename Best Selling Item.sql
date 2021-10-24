@@ -27,7 +27,7 @@ select top 2 * from Products
 
 --*NOTE:The item id is not the same as the product id. The item id is just the primary key for the orderitem table
 
---Also, there is no total invoice paid. Would have to add the 
+--Also, there is no total invoice paid. 
 
 --first join the tables, using order as the master table
 
@@ -56,26 +56,46 @@ with complete_order as(                            --creating CTE
 
 
 
--- use a window to find the best selling item for each month
-SELECT ct.ProductID,
-	   datepart('month' from OrderDate ) as Month
-FROM
-	(SELECT o.*,
-			   oi.ProductID,
-			   oi.ItemPrice,
-			   oi.Quantity,
-			   p.ProductName
+-- using CTE to find total item price for each order item
+with complete_order as(                            
+		SELECT o.*,
+				oi.ProductID,
+				oi.ItemPrice,
+				oi.Quantity,
+				p.ProductName
 		FROM Orders o
 		INNER JOIN OrderItems oi ON o.OrderID = oi.OrderID
-		LEFT JOIN Products p ON oi.ProductID = p.ProductID
-		) as ct;
+		LEFT JOIN Products p ON oi.ProductID = p.ProductID)
+SELECT OrderID,
+	   ProductID,
+	   ProductName,
+	   ItemPrice,
+	   Quantity,
+	   abs(ItemPrice * Quantity) as total_price,
+	   datename(month,OrderDate ) as Month
+FROM complete_order;
 
+	
 
 ----------------------------------------------------------------------------------------------
-use MyGuitarShop
 
-SELECT DATEPART('month' from OrderDate) as Month
-FROM Orders;
+-- use a window to find the best selling item for each month
 
 
--- still getting an error.
+with complete_order as(                            
+		SELECT o.*,
+				oi.ProductID,
+				oi.ItemPrice,
+				oi.Quantity,
+				p.ProductName
+		FROM Orders o
+		INNER JOIN OrderItems oi ON o.OrderID = oi.OrderID
+		LEFT JOIN Products p ON oi.ProductID = p.ProductID)
+SELECT OrderID,
+		ProductID,
+		ProductName,
+		ItemPrice,
+		Quantity,
+		abs(ItemPrice * Quantity) as total_price,
+		datename(month,OrderDate ) as Month
+FROM complete_order
