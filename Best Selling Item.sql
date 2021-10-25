@@ -95,11 +95,11 @@ with complete_order as(
 SELECT ProductName,
 	   Month,
 	   total_price,
-	   Rank() OVER (PARTITION BY Month ORDER BY total_price DESC) as rank
+	   Rank() OVER (PARTITION BY Month ORDER BY total_price DESC) as rank     -- CHANGE TO DENSE_RANK
 FROM complete_order;
  
 
--- some products have the same ranking within a month
+-- some products have the same ranking within a month,  ***USE DENSE_RANK. BECASUE RANK JUMPS IN NUMBERS WHEN THERE ARE TIES
 
 -- add group by to get more accurate results
 
