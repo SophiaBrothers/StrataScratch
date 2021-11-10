@@ -37,6 +37,7 @@ from SalesOrders
 --left join BusinessPartners to salesOrder
 --create a subquery
 --rank company using a window function
+--create CTE to find the top three
 
 
 SELECT COMPANYNAME as Company,
@@ -48,4 +49,31 @@ FROM (
 		   p.COMPANYNAME
 	FROM SalesOrders s
 	LEFT JOIN BusinessPartners p ON s.PARTNER_ID = p.PARTNER_ID ) as sub
-GROUP BY COMPANYNAME
+GROUP BY COMPANYNAME;
+
+
+
+-- TO FIND THE TOP THREE 
+-- create cte 
+
+WITH Company_Rankings AS(
+	SELECT COMPANYNAME as Company,
+		   sum(GROSSAMOUNT) as Total_Gross,
+		   DENSE_RANK() over(order by sum(GROSSAMOUNT) DESC) as company_rank
+	FROM (
+		SELECT s.PARTNER_ID,
+			   s.GROSSAMOUNT,
+			   p.COMPANYNAME
+		FROM SalesOrders s
+		LEFT JOIN BusinessPartners p ON s.PARTNER_ID = p.PARTNER_ID ) as sub
+	GROUP BY COMPANYNAME ) 
+SELECT Company,
+       Total_Gross,
+	   company_rank
+FROM Company_Rankings
+WHERE company_rank < 4
+
+
+
+
+
